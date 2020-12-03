@@ -1,0 +1,54 @@
+main{
+    display: flex;
+    flex-direction: column;
+    background-color: #555b6e;
+}
+/* Header title  */
+h1, p{
+    text-align: center;
+    font-family: 'Times New Roman, Times, serif';
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.hidden{
+    display: none;
+}
+
+/* Expands a container to show details of bm */
+.expand{
+    display: block;
+    text-align: center;
+}
+
+  /* Contain each filter option  */
+.container{
+    border-style: solid;
+    border-color: white;
+    text-align: center;
+    margin: 30px;
+    padding: 15px; 
+    background-color: #89b0ae;
+}
+
+.js-bookmark-item{
+    background-color: #ffd6ba;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.footer{
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* For desktop version */
+@media all and (min-width:600px){
+.js-bookmark-item{
+    display: grid;
+}
+}
+
+  
