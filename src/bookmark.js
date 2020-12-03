@@ -3,11 +3,10 @@ import store from './store.js';
 import api from './api.js';
 
 // Pass in a default parameter to make argument optional
-const render = function (bookmarks=[...store.store.bookmarks]) {
-    renderError();
+const render = function (bookmarks = [...store.store.bookmarks]) {
+  renderError();
   generateMainView();
 
- 
   // render the bookmarks saved list in the DOM
   // creates new var bookmarkListString and calls
   // generateBookmarkListString function passing in new array "bookmarksSaved"
@@ -28,13 +27,13 @@ const generateMainView = function () {
 
 <form id="createBookmark">
     <div class= "hidden">
-    <label for="title">Title:</label><br>
+    <label for="title"><b>Title:</b></label><br>
     <input type="text" id="title" placeholder="Title of page" required><br><br>
-    <label for="link">URL Link:</label><br>
+    <label for="link"><b>URL Link: </b></label><br>
     <input type="text" id="link" placeholder="URL Address" required><br><br>
-    <label for="description">Description:</label><br>
+    <label for="description"><b>Description: </b></label><br>
     <textarea id="description" name= "Description" rows="10" cols="30" placeholder="Type your description here (optional)"></textarea><br><br>
-    <label for="rating">Rating: 
+    <label for="rating"><b>Rating: </b>
       <select name="rating" id="rating" required>
         <option value="1" selected="selected">1 Star</option>
         <option value="2" selected="selected">2 Stars</option>
@@ -77,31 +76,34 @@ const generateMainView = function () {
 
 
 </div>
-</section>`
-
-  );
+    <footer>
+      <div class="container">
+      <div id= "footer">
+      <p>© 2020 Bookmark Application, Roxanne Cantu</p>
+      </div>
+      </div>
+    </footer>
+</section>`);
 };
 
 /* This functions displays the bookmark list being stored */
 const generateBookmarkElement = function (bookmark) {
-
   /* 'tabindex = 0' is a global attribute that indicates the elements can be
      focused and allows keyboard navigation (usually with the 'tab' key) */
   /* Any attribute on any element whose attribute name starts with data- is a data attribute */
   let bookmarkItem = `
     <div class="container js-bookmark-item" data-item-id="${bookmark.id}" tabindex="0">
-    <div>Title: </div>
-    <div>${bookmark.title}</div><br>
-    <div class="hidden toggleDetails"><div>URL: </div>
-    <div><a href="${bookmark.url}">${bookmark.url}</a></div><br>
-    <div>Description:</div>
-    <div>${bookmark.desc}</div></div><br>
-    <div>Rating: </div>
-    <div>${bookmark.rating}</div><br>
+    <div class="infoTitles"><b><u>Title: </u></b></div>
+    <div class="bmInformation">${bookmark.title}</div><br>
+    <div class="hidden toggleDetails"><div class="infoTitles"><b><u>URL: </u></b></div>
+    <div class="bmInformation"><a href="${bookmark.url}">${bookmark.url}</a></div><br>
+    <div class="infoTitles"><b><u>Description: </u></b></div>
+    <div class="bmInformation">${bookmark.desc}</div></div><br>
+    <div class="infoTitles"><b><u>Rating: </u></b></div>
+    <div class="bmInformation">${bookmark.rating}</div><br>
     <div><button type="button" id="deleteBM">Delete</button></div><br>
     <div><button type="button" id="detailedButton">Details</button></div><br>
-    </div>`
-   
+    </div>`;
 
   return bookmarkItem;
 };
@@ -115,16 +117,17 @@ const generateBookmarkListString = function (bookmark) {
 
 /* This function gets the bookmark id and stores it and returns it
 This fetches the id and stores the id  */
-const getBookmarkIdFromElement = function(bookmarkElement){
-  return $(bookmarkElement)
-  // .closest - For each element in the set, get the first element that
-  // matches the selector by testing the element itself and traversing up through
-  // its ancestors in the DOM tree.
-  .closest('.js-bookmark-item')
-  // tore arbitrary data associated with the matched elements
-  .data('item-id');
+const getBookmarkIdFromElement = function (bookmarkElement) {
+  return (
+    $(bookmarkElement)
+      // .closest - For each element in the set, get the first element that
+      // matches the selector by testing the element itself and traversing up through
+      // its ancestors in the DOM tree.
+      .closest('.js-bookmark-item')
+      // tore arbitrary data associated with the matched elements
+      .data('item-id')
+  );
 };
-
 
 /* Generate error functions adds html for error content  */
 const generateError = function (message) {
@@ -136,17 +139,14 @@ const generateError = function (message) {
 
 /* checks for error and decides to store either an empty var
     or on with an error message */
-const renderError = function(){
-    if(store.error){
-        const el = generateError(store.error);
-        $('.error-container').html(el);
-    }
-    else{
-        $('.error-container').empty();
-    }
+const renderError = function () {
+  if (store.error) {
+    const el = generateError(store.error);
+    $('.error-container').html(el);
+  } else {
+    $('.error-container').empty();
+  }
 };
-
-
 
 /* EVENT LISTENER FUNCTIONS */
 
@@ -174,62 +174,61 @@ const handleSaveBookmark = function () {
     let desc = $('#description').val();
     let rating = $('#rating').val();
 
-    let userBookmarkInfo = { title, url, desc, rating};
-    api.createBookmark(userBookmarkInfo)
-    .then((bookmarkData) => {
-      store.addBookmark(bookmarkData);
-      render();
-    })
+    let userBookmarkInfo = { title, url, desc, rating };
+    api
+      .createBookmark(userBookmarkInfo)
+      .then((bookmarkData) => {
+        store.addBookmark(bookmarkData);
+        render();
+      })
 
-    // passed an error from api listApiFetch and will detail the error further
-    .catch((error) => {
+      // passed an error from api listApiFetch and will detail the error further
+      .catch((error) => {
         store.setError(error.message);
         renderError();
-    });
+      });
     //This is going to hide creating bookmark form
     $('.hidden').hide();
   });
 };
 
-  const handleFilterBookmark = function(){
-  $('main').on('submit', '#filterBM', (event) =>{
+const handleFilterBookmark = function () {
+  $('main').on('submit', '#filterBM', (event) => {
     event.preventDefault();
 
     let filteredList = $('#starRatings').val();
 
     let filteredBMList = store.filterByRatings(filteredList);
     render(filteredBMList);
-  })
-} 
+  });
+};
 
-const handleDeleteBookmark = function(){
-  $('main').on('click', '#deleteBM', (event =>{
+const handleDeleteBookmark = function () {
+  $('main').on('click', '#deleteBM', (event) => {
     event.preventDefault();
     let bookmarkId = getBookmarkIdFromElement(event.currentTarget);
-    
-    api.deleteBookmark(bookmarkId)
-    .then(()=>{
-      store.findAndDelete(bookmarkId)
-      render();
-    })
 
-    .catch((error)=>{
-      store.setError(error.message);
-      renderError();
-    })
+    api
+      .deleteBookmark(bookmarkId)
+      .then(() => {
+        store.findAndDelete(bookmarkId);
+        render();
+      })
 
-  }))
-}
+      .catch((error) => {
+        store.setError(error.message);
+        renderError();
+      });
+  });
+};
 
-const handleDetailsButton = function(){
-  $('main').on('click', '#detailedButton', (event) =>{
+const handleDetailsButton = function () {
+  $('main').on('click', '#detailedButton', (event) => {
     let id = getBookmarkIdFromElement($(event.currentTarget));
-    // the [] are attribute selectors 
-    $('[data-item-id="'+id+'"] .toggleDetails').toggleClass('hidden');
-  
-  })
-}
-
+    // the [] are attribute selectors
+    $('[data-item-id="' + id + '"] .toggleDetails').toggleClass('hidden');
+  });
+};
 
 const bindEventListeners = function () {
   handleCreateBookmark();
