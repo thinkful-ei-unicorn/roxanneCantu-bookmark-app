@@ -6,7 +6,10 @@ import api from './api.js';
 const render = function (bookmarks = [...store.store.bookmarks]) {
   renderError();
   generateMainView();
-
+  
+  if(store.store.adding === true){
+    $('.hidden').show()
+  }
   // render the bookmarks saved list in the DOM
   // creates new var bookmarkListString and calls
   // generateBookmarkListString function passing in new array "bookmarksSaved"
@@ -22,7 +25,7 @@ const generateMainView = function () {
 <section>
 <div class="container"> 
 <h2>Create a Bookmark</h2>       
-<button type="button" button id="create-button">Create Bookmark</button><br><br>
+<button type="button" id="create-button">Create Bookmark</button><br><br>
 
 
 <form id="createBookmark">
@@ -30,16 +33,17 @@ const generateMainView = function () {
     <label for="title"><b>Title:</b></label><br>
     <input type="text" id="title" placeholder="Title of page" required><br><br>
     <label for="link"><b>URL Link: </b></label><br>
-    <input type="text" id="link" placeholder="URL Address" required><br><br>
+    <input type="text" id="link" minlength="5" pattern= "https?://.+" placeholder="URL Address" required><br><br>
     <label for="description"><b>Description: </b></label><br>
     <textarea id="description" name= "Description" rows="10" cols="30" placeholder="Type your description here (optional)"></textarea><br><br>
     <label for="rating"><b>Rating: </b>
       <select name="rating" id="rating" required>
-        <option value="1" selected="selected">1 Star</option>
-        <option value="2" selected="selected">2 Stars</option>
-        <option value="3" selected="selected">3 Stars</option>
-        <option value="4" selected="selected">4 Stars</option>
-        <option value="5" selected="selected">5 Stars</option>
+        <option value="" disabled selected>Rating</option>
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
         </select>
       </label><br><br>
     <input type="submit" id="saveBookmark" value="Submit"><br><br>
@@ -53,11 +57,12 @@ const generateMainView = function () {
     <h2>Filter Bookmarks by Rating</h2>
     <form name="filterBM" id="filterBM" action="/action_page.php">
         Filter Bookmarks:  <select name="starRatings" id="starRatings">
-        <option value="1" selected="selected">1 Star</option>
-        <option value="2" selected="selected">2 Stars</option>
-        <option value="3" selected="selected">3 Stars</option>
-        <option value="4" selected="selected">4 Stars</option>
-        <option value="5" selected="selected">5 Stars</option>
+        <option value="" selected="selected">Filter</option>
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
           </select>
           <br><br>
      
@@ -69,13 +74,10 @@ const generateMainView = function () {
   <div class='container'>
     <h2>Bookmarks</h2>
 
-<div>
     <ul class="js-bookmark-list">
     </ul>
-</div>
 
-
-</div>
+  </div>
     <footer>
       <div class="container">
       <div id= "footer">
@@ -96,13 +98,13 @@ const generateBookmarkElement = function (bookmark) {
     <div class="infoTitles"><b><u>Title: </u></b></div>
     <div class="bmInformation">${bookmark.title}</div><br>
     <div class="hidden toggleDetails"><div class="infoTitles"><b><u>URL: </u></b></div>
-    <div class="bmInformation"><a href="${bookmark.url}">${bookmark.url}</a></div><br>
+    <div class="bmInformation"><a href="${bookmark.url}" target="_blank">${bookmark.url}</a></div><br>
     <div class="infoTitles"><b><u>Description: </u></b></div>
     <div class="bmInformation">${bookmark.desc}</div></div><br>
     <div class="infoTitles"><b><u>Rating: </u></b></div>
     <div class="bmInformation">${bookmark.rating}</div><br>
-    <div><button type="button" id="deleteBM">Delete</button></div><br>
-    <div><button type="button" id="detailedButton">Details</button></div><br>
+    <div><button type="button" class="deleteBM">Delete</button></div><br>
+    <div><button type="button" class="detailedButton">Details</button></div><br>
     </div>`;
 
   return bookmarkItem;
@@ -156,17 +158,15 @@ const handleCreateBookmark = function () {
     // Listens for user to click "create bookmark" button
     event.preventDefault();
     // Changes the creating object to true
-    store.store.creating = true;
-
-    // jquery method to remove hidden css
-    $('.hidden').show();
+    store.store.adding = true;
+    render();
   });
 };
 
 const handleSaveBookmark = function () {
   $('main').on('submit', '#createBookmark', (event) => {
     event.preventDefault();
-
+    store.store.adding = false;
     // .val method is primarily used to get the values of form elements
     // store the user input into a variable
     let title = $('#title').val();
@@ -187,8 +187,7 @@ const handleSaveBookmark = function () {
         store.setError(error.message);
         renderError();
       });
-    //This is going to hide creating bookmark form
-    $('.hidden').hide();
+    
   });
 };
 
@@ -204,7 +203,7 @@ const handleFilterBookmark = function () {
 };
 
 const handleDeleteBookmark = function () {
-  $('main').on('click', '#deleteBM', (event) => {
+  $('main').on('click', '.deleteBM', (event) => {
     event.preventDefault();
     let bookmarkId = getBookmarkIdFromElement(event.currentTarget);
 
@@ -223,7 +222,7 @@ const handleDeleteBookmark = function () {
 };
 
 const handleDetailsButton = function () {
-  $('main').on('click', '#detailedButton', (event) => {
+  $('main').on('click', '.detailedButton', (event) => {
     let id = getBookmarkIdFromElement($(event.currentTarget));
     // the [] are attribute selectors
     $('[data-item-id="' + id + '"] .toggleDetails').toggleClass('hidden');
